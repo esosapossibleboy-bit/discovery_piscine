@@ -1,53 +1,47 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 
-// Simple pages for now
-function Home() {
+function App() {
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/products')
+      .then(res => {
+        setProducts(res.data)
+        setLoading(false)
+      })
+      .catch(err => {
+        console.log('Backend not running!', err)
+        setLoading(false)
+      })
+  }, [])
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Navbar */}
-      <nav className="bg-black text-white p-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold">EsosaTech Store</h1>
-        <div className="flex gap-4">
-          <Link to="/" className="hover:text-gray-300">Home</Link>
-          <Link to="/products" className="hover:text-gray-300">Products</Link>
-          <Link to="/cart" className="hover:text-gray-300">Cart</Link>
-        </div>
-      </nav>
-
-      {/* Hero */}
-      <div className="text-center p-20 bg-white">
-        <h1 className="text-5xl font-bold mb-4">Welcome to EsosaTech</h1>
-        <p className="text-xl text-gray-600 mb-8">Best tech deals in Germany</p>
-        <Link to="/products" className="bg-black text-white px-8 py-3 rounded-lg hover:bg-gray-800">
-          Shop Now
-        </Link>
+    <div style={{padding: '40px', fontFamily: 'sans-serif', background: '#f9f9f9', minHeight: '100vh'}}>
+      <h1 style={{fontSize: '40px', fontWeight: 'bold'}}>EsosaTech Store 🔥</h1>
+      <p style={{color: 'green', fontWeight: 'bold'}}>
+        {loading ? 'Connecting...' : `✅ Connected! ${products.length} products from backend`}
+      </p>
+      
+      <div style={{marginTop: '30px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '20px'}}>
+        {products.map(p => (
+          <div key={p.id} style={{background: 'white', border: '1px solid #ddd', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)'}}>
+            <div style={{fontSize: '40px'}}>{p.image}</div>
+            <h3 style={{fontWeight: 'bold', marginTop: '10px'}}>{p.name}</h3>
+            <p style={{color: '#666', fontSize: '14px'}}>{p.description}</p>
+            <p style={{color: 'green', fontWeight: 'bold', fontSize: '20px', marginTop: '10px'}}>${p.price}</p>
+            <button style={{marginTop: '10px', width: '100%', background: 'black', color: 'white', padding: '8px', borderRadius: '6px', border: 'none', cursor: 'pointer'}}>
+              Add to Cart
+            </button>
+          </div>
+        ))}
       </div>
 
-      {/* Test Tailwind */}
-      <h1 className="text-3xl font-bold text-red-500 p-10 text-center">Tailwind V4 Works! ✅</h1>
+      {!loading && products.length === 0 && (
+        <p style={{color: 'red'}}>Backend not running! Start backend: cd backend && node server.js</p>
+      )}
     </div>
   )
 }
-
-function Products() {
-  return <div className="p-10"><h2 className="text-2xl font-bold">Products coming soon...</h2></div>
-}
-
-function Cart() {
-  return <div className="p-10"><h2 className="text-2xl font-bold">Your Cart is empty</h2></div>
-}
-
-function App() {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/cart" element={<Cart />} />
-      </Routes>
-    </Router>
-  )
-}
-
 export default App

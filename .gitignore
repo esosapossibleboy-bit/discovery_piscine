@@ -1,0 +1,31 @@
+# Dependencies - VERY IMPORTANT!
+node_modules
+**/node_modules
+
+# Secrets - VERY IMPORTANT!
+.env
+**/.env
+backend/.env
+frontend/.env
+
+# Build files
+dist
+build
+**/dist
+**/build
+
+# Logs
+npm-debug.log
+logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode
+
+# Error log you created
+backend/error.txt
+error.txt
