@@ -6,7 +6,7 @@ function App() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/products')
+    axios.get('https://e-commerce-gv5f.onrender.com/api/products')
       .then(res => {
         setProducts(res.data)
         setLoading(false)
@@ -21,12 +21,12 @@ function App() {
     <div style={{padding: '40px', fontFamily: 'sans-serif', background: '#f9f9f9', minHeight: '100vh'}}>
       <h1 style={{fontSize: '40px', fontWeight: 'bold'}}>EsosaTech Store 🔥</h1>
       <p style={{color: 'green', fontWeight: 'bold'}}>
-        {loading ? 'Connecting...' : `✅ Connected! ${products.length} products from backend`}
+        {loading ? 'Connecting...' : `✅ Connected! ${products.length} products from LIVE backend`}
       </p>
       
       <div style={{marginTop: '30px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '20px'}}>
         {products.map(p => (
-          <div key={p.id} style={{background: 'white', border: '1px solid #ddd', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)'}}>
+          <div key={p._id} style={{background: 'white', border: '1px solid #ddd', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)'}}>
             <div style={{fontSize: '40px'}}>{p.image}</div>
             <h3 style={{fontWeight: 'bold', marginTop: '10px'}}>{p.name}</h3>
             <p style={{color: '#666', fontSize: '14px'}}>{p.description}</p>
@@ -39,7 +39,7 @@ function App() {
       </div>
 
       {!loading && products.length === 0 && (
-        <p style={{color: 'red'}}>Backend not running! Start backend: cd backend && node server.js</p>
+        <p style={{color: 'red'}}>Backend not running! Check https://e-commerce-gv5f.onrender.com/api/products</p>
       )}
     </div>
   )
