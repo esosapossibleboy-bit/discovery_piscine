@@ -1,49 +1,42 @@
-require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
 const mongoose = require('mongoose');
+const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
 
-// CORS - Allow Vercel + localhost
-app.use(cors({
-  origin: '*', // for now allow all, later restrict to your Vercel URL
-  credentials: true
-}));
+app.use(cors());
 app.use(express.json());
 
-// Routes - PHASE 5 COMPLETE
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/products', require('./routes/products'));
-app.use('/api/admin', require('./routes/admin')); // 👑 Admin Power
-app.use('/api/orders', require('./routes/orderRoutes')); // 🛒 NEW - Phase 5 Orders!
+// DEBUG log - so you see in Render logs what's missing
+console.log('🔍 Checking ENV...');
+console.log('MONGO_URI exists?', !!process.env.MONGO_URI);
+console.log('JWT_SECRET exists?', !!process.env.JWT_SECRET);
+console.log('PORT:', process.env.PORT || 10000);
 
-app.get('/', (req, res) => res.send('EsosaTech REAL API 🔥 Phase 5 - Auth + Admin + Orders'));
+const productRoutes = require('./routes/products');
+const authRoutes = require('./routes/auth');
+const orderRoutes = require('./routes/orders');
 
-const PORT = process.env.PORT || 5000;
+app.use('/api/products', productRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/orders', orderRoutes);
 
-mongoose.connect(process.env.MONGODB_URI)
-.then(() => {
-    console.log('✅ MongoDB Connected');
+app.get('/', (req, res) => {
+  res.send('✅ EsosaTech Backend is LIVE - ' + new Date());
+});
 
-    // Seed products if empty
-    try {
-      const Product = require('./models/product');
-      Product.countDocuments().then(count => {
-        if (count === 0) {
-          Product.insertMany([
-            { name: 'iPhone 15 Pro', price: 999, category: 'Phone', image: '📱', description: 'Latest iPhone' },
-            { name: 'MacBook Pro M3', price: 1999, category: 'Laptop', image: '💻', description: 'Powerful laptop' },
-            { name: 'AirPods Pro', price: 249, category: 'Audio', image: '🎧', description: 'Noise cancelling' },
-          ]).then(() => console.log('🌱 Seeded 3 products'));
-        } else {
-          console.log(`📦 ${count} products already in DB`);
-        }
-      });
-    } catch(e) {
-      console.log('⚠️ Product model not found, skipping seed');
-    }
+// Don't crash if MONGO_URI missing - show error
+if (!process.env.MONGO_URI) {
+  console.error('❌ ERROR: MONGO_URI is NOT SET in Render Environment Variables!');
+  console.error('Go to Render > Environment > Add MONGO_URI');
+} else {
+  mongoose.connect(process.env.MONGO_URI)
+    .then(() => console.log('✅ MongoDB Connected'))
+    .catch(err => console.error('❌ MongoDB Error:', err.message));
+}
 
-    app.listen(PORT, () => console.log(`✅ REAL Backend on port ${PORT} + Admin + Orders ready`));
-  })
-.catch(err => console.log('❌ Mongo Error:', err.message));
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
