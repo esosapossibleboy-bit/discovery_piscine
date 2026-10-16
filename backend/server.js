@@ -4,15 +4,21 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 
 const app = express();
-app.use(cors());
+
+// CORS - Allow Vercel + localhost
+app.use(cors({
+  origin: '*', // for now allow all, later restrict to your Vercel URL
+  credentials: true
+}));
 app.use(express.json());
 
-// Routes - UPDATED WITH ADMIN
+// Routes - PHASE 5 COMPLETE
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/products', require('./routes/products'));
-app.use('/api/admin', require('./routes/admin')); // <-- NEW ADMIN POWER 👑
+app.use('/api/admin', require('./routes/admin')); // 👑 Admin Power
+app.use('/api/orders', require('./routes/orderRoutes')); // 🛒 NEW - Phase 5 Orders!
 
-app.get('/', (req, res) => res.send('EsosaTech REAL API 🔥 with Auth + Admin'));
+app.get('/', (req, res) => res.send('EsosaTech REAL API 🔥 Phase 5 - Auth + Admin + Orders'));
 
 const PORT = process.env.PORT || 5000;
 
@@ -20,7 +26,7 @@ mongoose.connect(process.env.MONGODB_URI)
 .then(() => {
     console.log('✅ MongoDB Connected');
 
-    // Seed products if empty - FIXED case sensitivity
+    // Seed products if empty
     try {
       const Product = require('./models/product');
       Product.countDocuments().then(count => {
@@ -38,6 +44,6 @@ mongoose.connect(process.env.MONGODB_URI)
       console.log('⚠️ Product model not found, skipping seed');
     }
 
-    app.listen(PORT, () => console.log(`✅ REAL Backend on port ${PORT} + Admin ready`));
+    app.listen(PORT, () => console.log(`✅ REAL Backend on port ${PORT} + Admin + Orders ready`));
   })
 .catch(err => console.log('❌ Mongo Error:', err.message));

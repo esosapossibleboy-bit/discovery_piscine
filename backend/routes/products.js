@@ -1,21 +1,39 @@
 const express = require('express');
-const Product = require('../models/product');
-const { protect, admin } = require('../middleware/auth');
 const router = express.Router();
+const Product = require('../models/product'); // LOWERCASE - matches your file!
+const auth = require('../middleware/auth');
 
+// GET /api/products - Public
 router.get('/', async (req, res) => {
-  const products = await Product.find();
-  res.json(products);
+  try {
+    const products = await Product.find();
+    res.json(products);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
-router.post('/', protect, admin, async (req, res) => {
-  const p = await Product.create(req.body);
-  res.json(p);
+// POST /api/products - Admin only
+router.post('/', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+    const product = new Product(req.body);
+    await product.save();
+    res.status(201).json(product);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
-router.delete('/:id', protect, admin, async (req, res) => {
-  await Product.findByIdAndDelete(req.params.id);
-  res.json({ message: 'Deleted' });
+// DELETE /api/products/:id - Admin only
+router.delete('/:id', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+    await Product.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Deleted' });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 module.exports = router;
