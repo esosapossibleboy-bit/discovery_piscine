@@ -1,37 +1,41 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
+import api from '../api.js';
+import { useCart } from '../context/CartContext.jsx';
 
 export default function Store() {
-  const [products, setProducts] = useState([])
-  useEffect(()=>{ fetch('https://e-commerce-gv5f.onrender.com/api/products').then(r=>r.json()).then(setProducts) }, [])
+  const [products, setProducts] = useState([]);
+  const { addToCart } = useCart();
 
-  const addToCart = (p) => {
-    const cart = JSON.parse(localStorage.getItem('cart')||'[]')
-    cart.push(p)
-    localStorage.setItem('cart', JSON.stringify(cart))
-    alert(p.name+' added to cart!')
-  }
+  useEffect(() => {
+    api.get('/products')
+      .then(res => setProducts(res.data))
+      .catch(err => console.error(err));
+  }, []);
 
   return (
-    <div style={{ padding:'20px' }}>
-      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-        <h1>EsosaTech Store 🔥</h1>
-        <a href="/cart" style={{ background:'black', color:'white', padding:'10px 16px', borderRadius:'8px', textDecoration:'none' }}>🛒 Cart ({JSON.parse(localStorage.getItem('cart')||'[]').length})</a>
-      </div>
-      <p>✅ {products.length} products with real images</p>
-      <div style={{ display:'flex', gap:'20px', flexWrap:'wrap', marginTop:'20px' }}>
-        {products.map(p=>(
-          <div key={p._id} style={{ border:'1px solid #ddd', borderRadius:'12px', width:'230px', overflow:'hidden', boxShadow:'0 2px 8px rgba(0,0,0,0.1)' }}>
-            <img src={p.image} alt={p.name} style={{ width:'100%', height:'170px', objectFit:'cover' }} />
-            <div style={{ padding:'12px' }}>
-              <h3 style={{ margin:'0 0 5px 0' }}>{p.name}</h3>
-              <p style={{ fontSize:'13px', color:'#666', margin:'0 0 5px 0' }}>{p.description}</p>
-              <b style={{ fontSize:'18px' }}>${p.price}</b>
-              <button onClick={()=>addToCart(p)} style={{ background:'black', color:'white', width:'100%', padding:'10px', borderRadius:'8px', marginTop:'10px', cursor:'pointer' }}>Add to Cart</button>
-            </div>
+    <div style={{ padding: '20px' }}>
+      <h3>✅ {products.length} products with real images</h3>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '20px' }}>
+        {products.map(p => (
+          <div key={p._id} style={{ border: '1px solid #eee', borderRadius: '12px', padding: '10px', background: 'white' }}>
+            <img
+              src={p.image}
+              alt={p.name}
+              style={{ width: '100%', height: '180px', objectFit: 'cover', borderRadius: '8px' }}
+              onError={(e) => e.target.src = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500'}
+            />
+            <h4 style={{ margin: '10px 0 5px' }}>{p.name}</h4>
+            <p style={{ fontSize: '12px', color: '#666' }}>{p.description}</p>
+            <p style={{ fontWeight: 'bold' }}>${p.price}</p>
+            <button
+              onClick={() => addToCart(p)}
+              style={{ width: '100%', background: 'black', color: 'white', padding: '10px', borderRadius: '8px', cursor: 'pointer' }}
+            >
+              Add to Cart
+            </button>
           </div>
         ))}
       </div>
-      <br/><div style={{ display:'flex', gap:'10px' }}><a href="/my-orders">My Orders</a> | <a href="/admin">Admin Panel</a></div>
     </div>
-  )
+  );
 }

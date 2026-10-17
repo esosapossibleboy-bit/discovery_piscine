@@ -4,8 +4,10 @@ const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
   price: { type: Number, required: true },
   description: { type: String, default: '' },
-  image: { type: String, default: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30' },
+  image: { type: String, required: true },
   stock: { type: Number, default: 10 }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Product', productSchema);
+// IMPORTANT: Must export like this, not { Product }
+const Product = mongoose.model('Product', productSchema);
+module.exports = Product;
